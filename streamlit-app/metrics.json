@@ -1,0 +1,8 @@
+{
+  "accuracy": 0.7812,
+  "model": "ExtraTreesClassifier",
+  "trainingRows": 17120,
+  "validationRows": 4000,
+  "maxFeatures": 3000,
+  "note": "Measured on a balanced validation sample from train 2.csv. This classic BOW + handcrafted feature model does not reach 90% validation accuracy."
+}

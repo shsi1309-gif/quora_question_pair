@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.local
+.DS_Store
+.venv/
+__pycache__/
+*.pyc
+streamlit-app/model.pkl
+streamlit-app/model.pkl
+*.pkl
+streamlit-app/train 2.csv
