@@ -8,7 +8,7 @@ import sys
 
 import numpy as np
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.feature_extraction.text import CountVectorizer, ENGLISH_STOP_WORDS
+from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 
@@ -143,8 +143,7 @@ def fit_vectorizer(rows, max_features):
     questions = []
     for question1, question2, _label in rows:
         questions.extend([question1, question2])
-
-    vectorizer = CountVectorizer(max_features=max_features, lowercase=True)
+    vectorizer = TfidfVectorizer(max_features=max_features, lowercase=True)
     vectorizer.fit(questions)
     return vectorizer
 

@@ -1,8 +1,37 @@
 {
-  "accuracy": 0.7812,
-  "model": "ExtraTreesClassifier",
-  "trainingRows": 17120,
-  "validationRows": 4000,
+  "accuracy": 0.7741666666666667,
+  "perClass": {
+    "not_duplicate": {
+      "precision": 0.8560606060606061,
+      "recall": 0.6591666666666667,
+      "f1-score": 0.7448210922787194,
+      "support": 1200.0
+    },
+    "duplicate": {
+      "precision": 0.7228997289972899,
+      "recall": 0.8891666666666667,
+      "f1-score": 0.79745889387145,
+      "support": 1200.0
+    },
+    "accuracy": 0.7741666666666667,
+    "macro avg": {
+      "precision": 0.789480167528948,
+      "recall": 0.7741666666666667,
+      "f1-score": 0.7711399930750846,
+      "support": 2400.0
+    },
+    "weighted avg": {
+      "precision": 0.7894801675289479,
+      "recall": 0.7741666666666667,
+      "f1-score": 0.7711399930750846,
+      "support": 2400.0
+    }
+  },
+  "trainingRows": 10720,
+  "validationRows": 2400,
+  "sampledNonDuplicateRows": 255025,
+  "sampledDuplicateRows": 149263,
+  "hardExampleRows": 1120,
   "maxFeatures": 3000,
-  "note": "Measured on a balanced validation sample from train 2.csv. This classic BOW + handcrafted feature model does not reach 90% validation accuracy."
+  "model": "ExtraTreesClassifier"
 }
