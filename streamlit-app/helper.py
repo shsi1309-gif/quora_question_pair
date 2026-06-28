@@ -8,6 +8,7 @@ from pathlib import Path
 
 APP_DIR = Path(__file__).resolve().parent
 cv = None
+tfidf = None
 STOP_WORDS = None
 
 
@@ -19,6 +20,33 @@ def load_vectorizer():
             cv = pickle.load(cv_file)
 
     return cv
+
+
+def load_tfidf_vectorizer():
+    global tfidf
+
+    if tfidf is None:
+        with (APP_DIR / 'tfidf.pkl').open('rb') as tfidf_file:
+            tfidf = pickle.load(tfidf_file)
+
+    return tfidf
+
+
+def build_vector_features(q1, q2):
+    count_vectorizer = load_vectorizer()
+    tfidf_vectorizer = load_tfidf_vectorizer()
+
+    q1_count = count_vectorizer.transform([q1]).toarray()
+    q2_count = count_vectorizer.transform([q2]).toarray()
+
+    # Older artifacts stored the TF-IDF vectorizer as cv.pkl. Keep that model compatible.
+    if type(count_vectorizer).__name__ == "TfidfVectorizer":
+        return [q1_count, q2_count]
+
+    q1_tfidf = tfidf_vectorizer.transform([q1]).toarray()
+    q2_tfidf = tfidf_vectorizer.transform([q2]).toarray()
+
+    return [q1_count, q2_count, q1_tfidf, q2_tfidf]
 
 
 def load_stopwords():
@@ -328,11 +356,6 @@ def query_point_creator(q1, q2):
     fuzzy_features = test_fetch_fuzzy_features(q1, q2)
     input_query.extend(fuzzy_features)
 
-    # bow feature for q1
-    vectorizer = load_vectorizer()
-    q1_bow = vectorizer.transform([q1]).toarray()
+    vector_features = build_vector_features(q1, q2)
 
-    # bow feature for q2
-    q2_bow = vectorizer.transform([q2]).toarray()
-
-    return np.hstack((np.array(input_query).reshape(1, 22), q1_bow, q2_bow))
+    return np.hstack((np.array(input_query).reshape(1, 22), *vector_features))

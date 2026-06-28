@@ -41,6 +41,7 @@ The model artifacts are stored in `streamlit-app/`:
 ```text
 streamlit-app/model.pkl
 streamlit-app/cv.pkl
+streamlit-app/tfidf.pkl
 streamlit-app/stopwords.pkl
 ```
 
@@ -90,7 +91,7 @@ GET /api/question-pairs/history
 
 ## Note On The Original Python Model
 
-The Flask API loads `model.pkl`, `cv.pkl`, and `stopwords.pkl` from `streamlit-app/`. To regenerate those artifacts from a Quora training CSV:
+The Flask API loads `model.pkl`, `cv.pkl`, `tfidf.pkl`, and `stopwords.pkl` from `streamlit-app/`. The model uses handcrafted NLP features and TF-IDF vector features. The training script also supports generating CountVectorizer + TF-IDF features together when the dataset is available. To regenerate those artifacts from a Quora training CSV:
 
 ```bash
 .venv/bin/python scripts/create_model_artifacts.py "/path/to/train.csv"

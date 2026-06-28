@@ -8,7 +8,7 @@ import sys
 
 import numpy as np
 from sklearn.ensemble import ExtraTreesClassifier
-from sklearn.feature_extraction.text import TfidfVectorizer, ENGLISH_STOP_WORDS
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
 
@@ -139,12 +139,22 @@ def load_balanced_rows(csv_path, per_class, seed):
     return rows, seen
 
 
-def fit_vectorizer(rows, max_features):
+def collect_questions(rows):
     questions = []
     for question1, question2, _label in rows:
         questions.extend([question1, question2])
-    vectorizer = TfidfVectorizer(max_features=max_features, lowercase=True)
-    vectorizer.fit(questions)
+    return questions
+
+
+def fit_count_vectorizer(rows, max_features):
+    vectorizer = CountVectorizer(max_features=max_features, lowercase=True)
+    vectorizer.fit(collect_questions(rows))
+    return vectorizer
+
+
+def fit_tfidf_vectorizer(rows, max_features):
+    vectorizer = TfidfVectorizer(max_features=max_features, lowercase=True, ngram_range=(1, 2))
+    vectorizer.fit(collect_questions(rows))
     return vectorizer
 
 
@@ -206,9 +216,13 @@ def main():
     with (APP_DIR / "stopwords.pkl").open("wb") as stopwords_file:
         pickle.dump(stop_words, stopwords_file)
 
-    vectorizer = fit_vectorizer(train_rows, args.max_features)
+    count_vectorizer = fit_count_vectorizer(train_rows, args.max_features)
     with (APP_DIR / "cv.pkl").open("wb") as vectorizer_file:
-        pickle.dump(vectorizer, vectorizer_file)
+        pickle.dump(count_vectorizer, vectorizer_file)
+
+    tfidf_vectorizer = fit_tfidf_vectorizer(train_rows, args.max_features)
+    with (APP_DIR / "tfidf.pkl").open("wb") as vectorizer_file:
+        pickle.dump(tfidf_vectorizer, vectorizer_file)
 
     train_features, train_labels = build_feature_matrix(train_rows, "training")
     validation_features, validation_labels = build_feature_matrix(validation_rows, "validation")
@@ -250,6 +264,13 @@ def main():
         "sampledDuplicateRows": seen[1],
         "hardExampleRows": len(HARD_EXAMPLES) * 80,
         "maxFeatures": args.max_features,
+        "features": [
+            "handcrafted_text_features",
+            "count_vectorizer_question1",
+            "count_vectorizer_question2",
+            "tfidf_question1",
+            "tfidf_question2",
+        ],
         "model": "ExtraTreesClassifier",
     }
     with (APP_DIR / "metrics.json").open("w", encoding="utf-8") as metrics_file:

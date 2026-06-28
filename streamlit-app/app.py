@@ -11,6 +11,7 @@ import helper
 APP_DIR = Path(__file__).resolve().parent
 MODEL_PATH = APP_DIR / "model.pkl"
 CV_PATH = APP_DIR / "cv.pkl"
+TFIDF_PATH = APP_DIR / "tfidf.pkl"
 STOPWORDS_PATH = APP_DIR / "stopwords.pkl"
 METRICS_PATH = APP_DIR / "metrics.json"
 
@@ -24,6 +25,7 @@ def missing_artifacts():
     required_files = {
         "model.pkl": MODEL_PATH,
         "cv.pkl": CV_PATH,
+        "tfidf.pkl": TFIDF_PATH,
         "stopwords.pkl": STOPWORDS_PATH,
     }
     return [name for name, path in required_files.items() if not path.exists()]
