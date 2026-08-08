@@ -7,10 +7,11 @@ import random
 import sys
 
 import numpy as np
-from sklearn.ensemble import ExtraTreesClassifier
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer, ENGLISH_STOP_WORDS
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
+from xgboost import XGBClassifier
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -176,7 +177,9 @@ def build_feature_matrix(rows, label):
 
 
 def main():
-    parser = ArgumentParser(description="Create model.pkl, cv.pkl, and stopwords.pkl from Quora CSV.")
+    parser = ArgumentParser(
+        description="Create Random Forest + XGBoost model artifacts from Quora CSV."
+    )
     parser.add_argument(
         "dataset",
         type=Path,
@@ -227,13 +230,36 @@ def main():
     train_features, train_labels = build_feature_matrix(train_rows, "training")
     validation_features, validation_labels = build_feature_matrix(validation_rows, "validation")
 
-    model = ExtraTreesClassifier(
-        n_estimators=500,
+    random_forest = RandomForestClassifier(
+        n_estimators=300,
         max_features="sqrt",
         min_samples_leaf=2,
-        n_jobs=-1,
+        n_jobs=2,
         random_state=args.seed,
         class_weight="balanced",
+    )
+
+    xgboost = XGBClassifier(
+        n_estimators=450,
+        max_depth=6,
+        learning_rate=0.05,
+        subsample=0.85,
+        colsample_bytree=0.85,
+        objective="binary:logistic",
+        eval_metric="logloss",
+        tree_method="hist",
+        n_jobs=2,
+        random_state=args.seed,
+    )
+
+    model = VotingClassifier(
+        estimators=[
+            ("random_forest", random_forest),
+            ("xgboost", xgboost),
+        ],
+        voting="soft",
+        weights=[1, 2],
+        n_jobs=1,
     )
     model.fit(train_features, train_labels)
     validation_predictions = model.predict(validation_features)
@@ -271,7 +297,23 @@ def main():
             "tfidf_question1",
             "tfidf_question2",
         ],
-        "model": "ExtraTreesClassifier",
+        "model": "VotingClassifier(RandomForestClassifier + XGBClassifier)",
+        "estimators": {
+            "randomForest": {
+                "nEstimators": 300,
+                "maxFeatures": "sqrt",
+                "minSamplesLeaf": 2,
+                "classWeight": "balanced",
+            },
+            "xgboost": {
+                "nEstimators": 450,
+                "maxDepth": 6,
+                "learningRate": 0.05,
+                "subsample": 0.85,
+                "colsampleBytree": 0.85,
+                "objective": "binary:logistic",
+            },
+        },
     }
     with (APP_DIR / "metrics.json").open("w", encoding="utf-8") as metrics_file:
         json.dump(metrics, metrics_file, indent=2)

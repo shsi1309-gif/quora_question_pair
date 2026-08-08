@@ -41,13 +41,18 @@ def load_model():
     return model
 
 
+def load_metrics():
+    if not METRICS_PATH.exists():
+        return None
+
+    with METRICS_PATH.open(encoding="utf-8") as metrics_file:
+        return json.load(metrics_file)
+
+
 @app.get("/health")
 def health():
     missing_files = missing_artifacts()
-    metrics = None
-    if METRICS_PATH.exists():
-        with METRICS_PATH.open(encoding="utf-8") as metrics_file:
-            metrics = json.load(metrics_file)
+    metrics = load_metrics()
 
     return jsonify(
         {
@@ -84,11 +89,12 @@ def predict():
 
     query = helper.query_point_creator(question1, question2)
     result = int(load_model().predict(query)[0])
+    metrics = load_metrics() or {}
 
     return jsonify(
         {
             "prediction": "duplicate" if result else "not_duplicate",
-            "modelSource": "flask_original_pickle_model",
+            "modelSource": metrics.get("model", "flask_model"),
         }
     )
 

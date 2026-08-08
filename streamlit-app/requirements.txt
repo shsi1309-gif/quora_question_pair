@@ -1,6 +1,7 @@
 flask
 flask-cors
 scikit-learn
+xgboost
 fuzzywuzzy
 distance
 bs4

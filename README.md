@@ -91,7 +91,7 @@ GET /api/question-pairs/history
 
 ## Note On The Original Python Model
 
-The Flask API loads `model.pkl`, `cv.pkl`, `tfidf.pkl`, and `stopwords.pkl` from `streamlit-app/`. The model uses handcrafted NLP features and TF-IDF vector features. The training script also supports generating CountVectorizer + TF-IDF features together when the dataset is available. To regenerate those artifacts from a Quora training CSV:
+The Flask API loads `model.pkl`, `cv.pkl`, `tfidf.pkl`, and `stopwords.pkl` from `streamlit-app/`. The current training pipeline uses handcrafted NLP features, CountVectorizer features, TF-IDF features, and a soft-voting ensemble of Random Forest and XGBoost. To regenerate those artifacts from a Quora training CSV:
 
 ```bash
 .venv/bin/python scripts/create_model_artifacts.py "/path/to/train.csv"
