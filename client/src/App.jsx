@@ -114,12 +114,11 @@ function App() {
         <div className="hero-copy">
           <span className="eyebrow">
             <Sparkles size={16} />
-            MERN NLP Workspace
+            NLP Workspace
           </span>
           <h1>Quora duplicate question detector</h1>
           <p>
-            Compare two questions, inspect similarity signals, and save recent predictions through a
-            Mongo-backed Express API.
+            Compare two questions, inspect similarity signals, and view recent comparisons.
           </p>
         </div>
         <div className="hero-stats" aria-label="Current question statistics">
@@ -195,19 +194,31 @@ function App() {
 
           {result ? (
             <div className={`prediction-card ${isDuplicate ? "duplicate" : "not-duplicate"}`}>
-              <span>Final verdict</span>
+              <div className="card-top-row">
+                <span>Final verdict</span>
+                {result.confidence != null ? (
+                  <span className="confidence-pill">
+                    {Math.round(result.confidence * 100)}% Confidence
+                  </span>
+                ) : null}
+              </div>
               <strong>{isDuplicate ? "Same question" : "Not the same question"}</strong>
               <p>
                 {isDuplicate
                   ? "The two questions look close enough to share the same answer."
                   : "The two questions appear to have a meaningful difference in intent."}
               </p>
+              {result.modelSource ? (
+                <div className="model-source-tag">
+                  Engine: {result.modelSource.replace(/_/g, " ")}
+                </div>
+              ) : null}
             </div>
           ) : (
-          <div className="empty-state">
-            <SearchCheck size={36} />
+            <div className="empty-state">
+              <SearchCheck size={36} />
               <p>Submit a pair of questions to see the model verdict.</p>
-          </div>
+            </div>
           )}
 
         </aside>
@@ -216,7 +227,7 @@ function App() {
       <section className="history-panel">
         <div className="section-heading">
           <div>
-            <span className="eyebrow small">MongoDB History</span>
+            <span className="eyebrow small">History</span>
             <h2>Recent comparisons</h2>
           </div>
           <button className="icon-action" type="button" onClick={loadHistory} title="Refresh history">

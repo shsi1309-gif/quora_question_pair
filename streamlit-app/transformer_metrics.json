@@ -1,0 +1,51 @@
+{
+  "accuracy": 0.92,
+  "precision": {
+    "macro": 0.9156,
+    "weighted": 0.9196,
+    "not_duplicate": 0.9293,
+    "duplicate": 0.902
+  },
+  "recall": {
+    "macro": 0.9082,
+    "weighted": 0.92,
+    "not_duplicate": 0.9485,
+    "duplicate": 0.8679
+  },
+  "f1Score": {
+    "macro": 0.9117,
+    "weighted": 0.9196,
+    "not_duplicate": 0.9388,
+    "duplicate": 0.8846
+  },
+  "rocAuc": 0.9758,
+  "confusionMatrix": {
+    "trueNegative": 184,
+    "falsePositive": 10,
+    "falseNegative": 14,
+    "truePositive": 92,
+    "raw": [
+      [
+        184,
+        10
+      ],
+      [
+        14,
+        92
+      ]
+    ]
+  },
+  "support": {
+    "total": 300,
+    "notDuplicate": 194,
+    "duplicate": 106
+  },
+  "performance": {
+    "totalTimeSeconds": 5.25,
+    "avgLatencyMsPerPair": 17.49
+  },
+  "modelName": "cross-encoder/quora-distilroberta-base",
+  "architecture": "CrossEncoder",
+  "device": "mps",
+  "evaluatedAt": "2026-09-16T06:38:46Z"
+}

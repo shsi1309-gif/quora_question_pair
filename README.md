@@ -2,11 +2,12 @@
 
 A full-stack application for checking whether two Quora-style questions are semantically duplicate.
 
-The notebooks are included for NLP exploration and training experiments. The runnable app uses React, Express, MongoDB, and a Flask model service:
+The notebooks are included for NLP exploration and training experiments. The runnable app uses React, Express, and a Flask model service:
 
 - `client/` - React + Vite frontend
-- `server/` - Express API with MongoDB persistence
+- `server/` - Express API with in-memory session history
 - `streamlit-app/app.py` - Flask model API
+- `streamlit-app/transformer_service.py` - Cross-Encoder Transformer inference engine
 - `streamlit-app/helper.py` - feature engineering code used by the model
 
 Dataset: https://www.kaggle.com/c/quora-question-pairs
@@ -15,9 +16,9 @@ Dataset: https://www.kaggle.com/c/quora-question-pairs
 
 - React interface for comparing question pairs
 - Express API endpoint that forwards predictions to Flask
-- Flask service converted from the Streamlit model app
-- MongoDB-backed recent comparison history
-- In-memory history fallback when MongoDB is not connected
+- High-accuracy Cross-Encoder Transformer engine with confidence scoring
+- Flask microservice with live hardware acceleration
+- In-memory recent comparison history
 - Verdict-only UI: same question or not the same question
 
 ## Run Locally
@@ -31,10 +32,8 @@ npm run install:all
 Create the backend environment file:
 
 ```bash
-cp server/.env.example server/.env
+cp server/.env.example server/.env 2>/dev/null || true
 ```
-
-Start MongoDB locally, or update `MONGODB_URI` in `server/.env` with your MongoDB Atlas connection string.
 
 The model artifacts are stored in `streamlit-app/`:
 
@@ -89,10 +88,27 @@ Fetch recent comparisons:
 GET /api/question-pairs/history
 ```
 
-## Note On The Original Python Model
+## High-Accuracy Transformer Engine
 
-The Flask API loads `model.pkl`, `cv.pkl`, `tfidf.pkl`, and `stopwords.pkl` from `streamlit-app/`. The current training pipeline uses handcrafted NLP features, CountVectorizer features, TF-IDF features, and a soft-voting ensemble of Random Forest and XGBoost. To regenerate those artifacts from a Quora training CSV:
+The Flask API utilizes a state-of-the-art **Cross-Encoder Transformer** (`cross-encoder/quora-distilroberta-base`) powered by `sentence-transformers` and PyTorch with Apple Silicon (`mps`) / GPU acceleration:
+
+- **Deep Token-Level Cross Attention**: Captures contextual nuance, synonyms, and semantic differences far beyond Bag-of-Words and TF-IDF.
+- **Accurate Confidence Scoring**: Returns calibrated confidence and probability scores.
+- **Graceful Fallback**: Automatically falls back to the legacy ensemble (`model.pkl`) if transformer weights are offline.
+
+### Fine-Tuning a Transformer on Custom Quora Data
+
+To fine-tune a Cross-Encoder directly on a Quora `train.csv` dataset:
+
+```bash
+.venv/bin/python scripts/train_transformer.py "/path/to/train.csv" --samples 30000 --epochs 3
+```
+
+### Legacy Tabular Model (Random Forest + XGBoost)
+
+The legacy training pipeline uses handcrafted NLP features, CountVectorizer, TF-IDF, and a soft-voting ensemble of Random Forest and XGBoost:
 
 ```bash
 .venv/bin/python scripts/create_model_artifacts.py "/path/to/train.csv"
 ```
+

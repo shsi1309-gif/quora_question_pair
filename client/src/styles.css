@@ -253,6 +253,44 @@ textarea:focus {
   background: #fff3d6;
 }
 
+.card-top-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.confidence-pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(15, 118, 110, 0.15);
+  color: #0f766e !important;
+  font-size: 0.76rem !important;
+  font-weight: 800 !important;
+  letter-spacing: 0.04em !important;
+  text-transform: none !important;
+}
+
+.prediction-card.not-duplicate .confidence-pill {
+  background: rgba(180, 83, 9, 0.15);
+  color: #b45309 !important;
+}
+
+.model-source-tag {
+  display: inline-block;
+  margin-top: 14px;
+  padding: 4px 8px;
+  border-radius: 6px;
+  background: rgba(0, 0, 0, 0.05);
+  color: #5d6b7a;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 .prediction-card span {
   color: #5d6b7a;
   font-weight: 850;

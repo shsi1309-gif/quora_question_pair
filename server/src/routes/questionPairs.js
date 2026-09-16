@@ -1,7 +1,5 @@
 import { Router } from "express";
 import { randomUUID } from "node:crypto";
-import { isDatabaseConnected } from "../lib/database.js";
-import QuestionPair from "../models/QuestionPair.js";
 import { predictWithFlaskModel } from "../services/flaskModel.js";
 
 const router = Router();
@@ -18,25 +16,19 @@ router.post("/predict", async (req, res, next) => {
 
     const analysis = await predictWithFlaskModel(question1, question2);
     const payload = {
+      _id: randomUUID(),
       question1,
       question2,
       ...analysis,
-    };
-
-    if (isDatabaseConnected()) {
-      const savedPair = await QuestionPair.create(payload);
-      return res.status(201).json(savedPair);
-    }
-
-    const fallbackPair = {
-      _id: randomUUID(),
-      ...payload,
       createdAt: new Date().toISOString(),
     };
-    memoryHistory.unshift(fallbackPair);
-    memoryHistory.splice(8);
 
-    return res.status(201).json(fallbackPair);
+    memoryHistory.unshift(payload);
+    if (memoryHistory.length > 20) {
+      memoryHistory.splice(20);
+    }
+
+    return res.status(201).json(payload);
   } catch (error) {
     return next(error);
   }
@@ -44,12 +36,7 @@ router.post("/predict", async (req, res, next) => {
 
 router.get("/history", async (_req, res, next) => {
   try {
-    if (isDatabaseConnected()) {
-      const pairs = await QuestionPair.find().sort({ createdAt: -1 }).limit(8);
-      return res.json(pairs);
-    }
-
-    return res.json(memoryHistory);
+    return res.json(memoryHistory.slice(0, 8));
   } catch (error) {
     return next(error);
   }
